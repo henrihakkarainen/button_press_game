@@ -14,7 +14,7 @@ const writeFile = util.promisify(fs.writeFile)
 const incrementCounter = async () => {
   try {
     // read database, increment it by 1
-    const counter = Number(await readFile(DATABASE, 'utf-8')) + 1
+    const counter = Number(await readCounter()) + 1
     // write incremented counter to database
     await writeFile(DATABASE, counter, 'utf-8')
 
@@ -29,7 +29,6 @@ const readCounter = async () => {
   try {
     // read database
     const counter = await readFile(DATABASE, 'utf-8')
-
     return counter
   } catch (err) {
     // in case some errors occur, log them to console
@@ -62,17 +61,17 @@ app.use(express.static(path.join(__dirname, '/client/build')))
 // HTTP PUT-request to path /increment
 app.put('/increment', async (req, res) => {
   const counter = await incrementCounter()
-  const p = checkPoints(counter)
-  const n = pressesUntilNextPoints(counter)
-  const object = { points: p, numberOfPressesNeeded: n }
+  const points = checkPoints(counter)
+  const numberOfPressesNeeded = pressesUntilNextPoints(counter)
+  const object = { points, numberOfPressesNeeded }
   res.json(object)
 })
 
 // HTTP GET-request to path /presses
 app.get('/presses', async (req, res) => {
   const counter = await readCounter()
-  const n = pressesUntilNextPoints(counter)
-  const object = { numberOfPressesNeeded: n }
+  const numberOfPressesNeeded = pressesUntilNextPoints(counter)
+  const object = { numberOfPressesNeeded }
   res.json(object)
 })
 
